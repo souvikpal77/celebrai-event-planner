@@ -106,7 +106,8 @@ function generateDeterministicPlan(params: PlanGenerationRequest): GeneratedPlan
   });
 
   // Calculate timeline relative to event date
-  const eventDateObj = new Date(params.eventDate);
+  const parsedTime = params.eventDate ? new Date(params.eventDate).getTime() : NaN;
+  const eventDateObj = !isNaN(parsedTime) ? new Date(parsedTime) : new Date(Date.now() + 30 * 86400000);
   const now = new Date();
   const daysDiff = Math.max(1, Math.round((eventDateObj.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)));
 
@@ -650,6 +651,41 @@ Provide innovative ideas across theme, decor, food, entertainment, activities, g
 async function startServer() {
   if (!isProduction) {
     const isHmrDisabled = process.env.DISABLE_HMR === 'true';
+
+    // When HMR is disabled, intercept /@vite/client requests at the Express level
+    // to guarantee an inert stub with zero WebSocket connections is returned.
+    if (isHmrDisabled) {
+      const stubClient = `// Inactive Vite client stub (DISABLE_HMR=true)
+export function createHotContext() {
+  return { accept: () => {}, prune: () => {}, dispose: () => {}, decline: () => {}, invalidate: () => {}, on: () => {}, off: () => {}, send: () => {}, data: {} };
+}
+export function updateStyle(id, content) {
+  let style = document.querySelector(\`style[data-vite-dev-id="\${id}"]\`);
+  if (!style) {
+    style = document.createElement('style');
+    style.setAttribute('type', 'text/css');
+    style.setAttribute('data-vite-dev-id', id);
+    document.head.appendChild(style);
+  }
+  style.textContent = content;
+}
+export function removeStyle(id) {
+  const style = document.querySelector(\`style[data-vite-dev-id="\${id}"]\`);
+  if (style) style.remove();
+}
+export class ErrorOverlay extends (typeof HTMLElement !== 'undefined' ? HTMLElement : class {}) {}
+if (typeof customElements !== 'undefined' && !customElements.get('vite-error-overlay')) {
+  try { customElements.define('vite-error-overlay', ErrorOverlay); } catch {}
+}
+export function injectQuery(url) { return url; }
+`;
+      app.get(['/@vite/client', '/@vite/client.mjs'], (_req: Request, res: Response) => {
+        res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+        res.setHeader('Cache-Control', 'no-store');
+        res.send(stubClient);
+      });
+    }
+
     const vite = await createViteServer({
       server: {
         middlewareMode: true,

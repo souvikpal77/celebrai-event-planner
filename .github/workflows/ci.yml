@@ -1,0 +1,44 @@
+name: CelebrAI CI
+
+# Run workflow on push and pull requests targeting the main branch
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-validate:
+    name: Build & Validate
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Check out the repository source code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Step 2: Set up Node.js with caching enabled only if package-lock.json exists
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: ${{ hashFiles('package-lock.json') != '' && 'npm' || '' }}
+
+      # Step 3: Install dependencies using --legacy-peer-deps for consistent tree resolution
+      - name: Install dependencies
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci --legacy-peer-deps
+          else
+            npm install --legacy-peer-deps
+          fi
+
+      # Step 4: Run existing type-checking and lint script defined in package.json
+      - name: Run lint (TypeScript check)
+        run: npm run lint
+
+      # Step 5: Run existing production build script defined in package.json
+      - name: Build production bundle
+        run: npm run build

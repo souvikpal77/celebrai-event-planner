@@ -5,43 +5,80 @@ import { defineConfig, type Plugin } from 'vite';
 
 const isHmrDisabled = process.env.DISABLE_HMR === 'true';
 
+const STUB_CLIENT_CODE = `// Inactive Vite client stub (DISABLE_HMR=true)
+export function createHotContext() {
+  return {
+    accept: () => {},
+    prune: () => {},
+    dispose: () => {},
+    decline: () => {},
+    invalidate: () => {},
+    on: () => {},
+    off: () => {},
+    send: () => {},
+    data: {},
+  };
+}
+
+export function updateStyle(id, content) {
+  let style = document.querySelector(\`style[data-vite-dev-id="\${id}"]\`);
+  if (!style) {
+    style = document.createElement('style');
+    style.setAttribute('type', 'text/css');
+    style.setAttribute('data-vite-dev-id', id);
+    document.head.appendChild(style);
+  }
+  style.textContent = content;
+}
+
+export function removeStyle(id) {
+  const style = document.querySelector(\`style[data-vite-dev-id="\${id}"]\`);
+  if (style) {
+    style.remove();
+  }
+}
+
+export class ErrorOverlay extends (typeof HTMLElement !== 'undefined' ? HTMLElement : class {}) {}
+if (typeof customElements !== 'undefined' && !customElements.get('vite-error-overlay')) {
+  try {
+    customElements.define('vite-error-overlay', ErrorOverlay);
+  } catch {}
+}
+
+export function injectQuery(url) {
+  return url;
+}
+`;
+
 /**
  * When DISABLE_HMR=true (e.g. inside AI Studio preview iframe where WebSocket
  * connections to dev ports are not permitted or desired), prevent Vite from
- * injecting the HMR client script into index.html and prevent @vite/client from
- * attempting any WebSocket connection.
+ * injecting the HMR client script into index.html, strip /@vite/client imports from
+ * CSS modules, and stub @vite/client completely so no WebSocket connection is ever attempted.
  */
 function disableHmrPlugin(): Plugin {
   return {
     name: 'disable-hmr',
     apply: 'serve',
-    enforce: 'post',
+    resolveId(id) {
+      const cleanId = id.split('?')[0];
+      if (cleanId === '/@vite/client' || cleanId === '@vite/client' || cleanId.endsWith('/vite/dist/client/client.mjs')) {
+        return '\0stub-vite-client';
+      }
+      return null;
+    },
+    load(id) {
+      if (id.startsWith('\0stub-vite-client')) {
+        return STUB_CLIENT_CODE;
+      }
+      return null;
+    },
     transformIndexHtml: {
       order: 'post',
       handler(html) {
         // Strip the @vite/client script tag injected by Vite's HTML middleware
-        return html.replace(/<script type="module" src="\/@vite\/client"><\/script>\s*/gi, '');
+        return html.replace(/<script type="module" src="\/@vite\/client[^"]*"><\/script>\s*/gi, '');
       },
-    },
-    transform(code, id) {
-      // In case @vite/client is loaded by CSS injection or direct imports,
-      // stub the WebSocket runner transport so no socket connection is ever attempted.
-      if (id.includes('@vite/client') || id.endsWith('/client.mjs')) {
-        return code
-          .replace(
-            /console\.debug\("\[vite\] connecting\.\.\."\);[\s\S]*?const transport = normalizeModuleRunnerTransport\([\s\S]*?\nconst debounceReload =/,
-            'const forwardConsole = { enabled: false };\nconst transport = { connect: async () => {}, disconnect: async () => {}, send: () => {} };\nconst debounceReload ='
-          )
-          .replace(
-            /transport\.connect\(createHMRHandler\(handleMessage\)\);?/g,
-            '/* HMR WebSocket connection disabled via DISABLE_HMR=true */'
-          )
-          .replace(
-            /\bsetupForwardConsoleHandler\s*\(\s*transport\s*,\s*forwardConsole\s*\);?/g,
-            '/* Console forwarder disabled via DISABLE_HMR=true */'
-          );
-      }
-      return null;
     },
   };
 }
