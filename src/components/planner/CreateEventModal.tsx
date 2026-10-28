@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Sparkles, Loader2, AlertCircle, Calendar, Users, Wallet, MapPin } from 'lucide-react';
 import { EventType, PlanGenerationRequest } from '../../types/event';
 
@@ -35,6 +35,18 @@ export const CreateEventModal: React.FC<CreateEventModalProps> = ({
   });
 
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+
+  // Keyboard accessibility: Close on Escape key
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && !isLoading) {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, isLoading, onClose]);
 
   if (!isOpen) return null;
 
@@ -186,7 +198,11 @@ export const CreateEventModal: React.FC<CreateEventModalProps> = ({
 
         {/* Error message */}
         {error && (
-          <div className="mx-6 mt-4 p-3 bg-[#FFF5F5] border border-[#FEB2B2] rounded-xl text-xs text-[#C53030] flex items-start justify-between gap-2">
+          <div
+            className="mx-6 mt-4 p-3 bg-[#FFF5F5] border border-[#FEB2B2] rounded-xl text-xs text-[#C53030] flex items-start justify-between gap-2"
+            role="alert"
+            aria-live="assertive"
+          >
             <div className="flex items-start gap-2">
               <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
               <span>{error}</span>
@@ -205,7 +221,7 @@ export const CreateEventModal: React.FC<CreateEventModalProps> = ({
 
         {/* Loading Overlay */}
         {isLoading ? (
-          <div className="p-12 text-center space-y-4">
+          <div className="p-12 text-center space-y-4" role="status" aria-live="polite">
             <Loader2 className="w-10 h-10 text-[#1B4332] animate-spin mx-auto" />
             <div className="space-y-1">
               <h3 className="text-base font-bold text-[#1F2421]">
@@ -228,6 +244,8 @@ export const CreateEventModal: React.FC<CreateEventModalProps> = ({
                 type="text"
                 placeholder="e.g. Aanya’s 25th Birthday Celebration"
                 value={formData.name}
+                aria-invalid={Boolean(validationErrors.name)}
+                aria-describedby={validationErrors.name ? 'event-name-error' : undefined}
                 onChange={(e) => {
                   setFormData({ ...formData, name: e.target.value });
                   if (validationErrors.name) setValidationErrors({ ...validationErrors, name: '' });
@@ -237,7 +255,7 @@ export const CreateEventModal: React.FC<CreateEventModalProps> = ({
                 }`}
               />
               {validationErrors.name && (
-                <p className="text-xs text-[#C53030] mt-1">{validationErrors.name}</p>
+                <p id="event-name-error" className="text-xs text-[#C53030] mt-1">{validationErrors.name}</p>
               )}
             </div>
 
@@ -286,6 +304,8 @@ export const CreateEventModal: React.FC<CreateEventModalProps> = ({
                   type="text"
                   placeholder="e.g. Indiranagar, Bengaluru"
                   value={formData.location}
+                  aria-invalid={Boolean(validationErrors.location)}
+                  aria-describedby={validationErrors.location ? 'event-location-error' : undefined}
                   onChange={(e) => {
                     setFormData({ ...formData, location: e.target.value });
                     if (validationErrors.location) setValidationErrors({ ...validationErrors, location: '' });
@@ -295,7 +315,7 @@ export const CreateEventModal: React.FC<CreateEventModalProps> = ({
                   }`}
                 />
                 {validationErrors.location && (
-                  <p className="text-xs text-[#C53030] mt-1">{validationErrors.location}</p>
+                  <p id="event-location-error" className="text-xs text-[#C53030] mt-1">{validationErrors.location}</p>
                 )}
               </div>
 
@@ -309,11 +329,13 @@ export const CreateEventModal: React.FC<CreateEventModalProps> = ({
                   min="1"
                   max="50000"
                   value={formData.guestCount}
+                  aria-invalid={Boolean(validationErrors.guestCount)}
+                  aria-describedby={validationErrors.guestCount ? 'guest-count-error' : undefined}
                   onChange={(e) => setFormData({ ...formData, guestCount: Number(e.target.value) })}
                   className="w-full px-3.5 py-2.5 text-sm bg-white border border-[#D5CDC0] rounded-xl focus:border-[#1B4332] outline-none tabular-nums"
                 />
                 {validationErrors.guestCount && (
-                  <p className="text-xs text-[#C53030] mt-1">{validationErrors.guestCount}</p>
+                  <p id="guest-count-error" className="text-xs text-[#C53030] mt-1">{validationErrors.guestCount}</p>
                 )}
               </div>
             </div>
@@ -330,11 +352,13 @@ export const CreateEventModal: React.FC<CreateEventModalProps> = ({
                   min="100"
                   step="500"
                   value={formData.totalBudget}
+                  aria-invalid={Boolean(validationErrors.totalBudget)}
+                  aria-describedby={validationErrors.totalBudget ? 'total-budget-error' : undefined}
                   onChange={(e) => setFormData({ ...formData, totalBudget: Number(e.target.value) })}
                   className="w-full px-3.5 py-2.5 text-sm bg-white border border-[#D5CDC0] rounded-xl focus:border-[#1B4332] outline-none tabular-nums"
                 />
                 {validationErrors.totalBudget && (
-                  <p className="text-xs text-[#C53030] mt-1">{validationErrors.totalBudget}</p>
+                  <p id="total-budget-error" className="text-xs text-[#C53030] mt-1">{validationErrors.totalBudget}</p>
                 )}
               </div>
 

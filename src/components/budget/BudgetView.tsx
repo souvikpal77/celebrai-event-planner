@@ -189,7 +189,11 @@ export const BudgetView: React.FC<BudgetViewProps> = ({
 
       {/* Overbudget Warning Callout */}
       {overBudget && (
-        <div className="bg-[#FFF5F5] border border-[#FEB2B2] rounded-xl p-4 text-[#C53030] flex items-start gap-3 text-sm">
+        <div
+          className="bg-[#FFF5F5] border border-[#FEB2B2] rounded-xl p-4 text-[#C53030] flex items-start gap-3 text-sm"
+          role="alert"
+          aria-live="polite"
+        >
           <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" />
           <div>
             <span className="font-bold">Budget Exceeded:</span> Total allocated expenses (
@@ -240,6 +244,7 @@ export const BudgetView: React.FC<BudgetViewProps> = ({
                   step="500"
                   value={newTotalBudgetInput}
                   onChange={(e) => setNewTotalBudgetInput(Number(e.target.value))}
+                  aria-label="Edit total budget amount"
                   className="w-36 px-2 py-1 text-base font-bold bg-[#FDFBF7] border border-[#1B4332] rounded-lg tabular-nums"
                 />
               </div>
@@ -425,10 +430,11 @@ export const BudgetView: React.FC<BudgetViewProps> = ({
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="sm:col-span-2">
-              <label className="block text-xs font-semibold text-[#1F2421] mb-1">
+              <label htmlFor="new-category-name" className="block text-xs font-semibold text-[#1F2421] mb-1">
                 Category Name
               </label>
               <input
+                id="new-category-name"
                 type="text"
                 placeholder="e.g. Traditional Music / Dhol Players"
                 value={newCategoryForm.category}
@@ -441,10 +447,11 @@ export const BudgetView: React.FC<BudgetViewProps> = ({
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-[#1F2421] mb-1">
+              <label htmlFor="new-category-amount" className="block text-xs font-semibold text-[#1F2421] mb-1">
                 Estimated Amount ({currency})
               </label>
               <input
+                id="new-category-amount"
                 type="number"
                 min="0"
                 step="100"
@@ -459,10 +466,11 @@ export const BudgetView: React.FC<BudgetViewProps> = ({
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-[#1F2421] mb-1">
+            <label htmlFor="new-category-explanation" className="block text-xs font-semibold text-[#1F2421] mb-1">
               Description / Notes
             </label>
             <input
+              id="new-category-explanation"
               type="text"
               placeholder="e.g. 2 live performers for 2 hours during evening welcoming"
               value={newCategoryForm.explanation}
@@ -510,10 +518,11 @@ export const BudgetView: React.FC<BudgetViewProps> = ({
                 <div key={cat.id} className="p-4 bg-[#F9F7F2] space-y-3">
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div className="sm:col-span-2">
-                      <label className="block text-xs font-semibold text-[#1F2421] mb-1">
+                      <label htmlFor={`edit-category-name-${cat.id}`} className="block text-xs font-semibold text-[#1F2421] mb-1">
                         Category Name
                       </label>
                       <input
+                        id={`edit-category-name-${cat.id}`}
                         type="text"
                         value={editForm.category}
                         onChange={(e) => setEditForm({ ...editForm, category: e.target.value })}
@@ -521,10 +530,11 @@ export const BudgetView: React.FC<BudgetViewProps> = ({
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-[#1F2421] mb-1">
+                      <label htmlFor={`edit-category-amount-${cat.id}`} className="block text-xs font-semibold text-[#1F2421] mb-1">
                         Estimated Amount ({currency})
                       </label>
                       <input
+                        id={`edit-category-amount-${cat.id}`}
                         type="number"
                         min="0"
                         step="100"
@@ -537,10 +547,11 @@ export const BudgetView: React.FC<BudgetViewProps> = ({
                     </div>
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-[#1F2421] mb-1">
+                    <label htmlFor={`edit-category-explanation-${cat.id}`} className="block text-xs font-semibold text-[#1F2421] mb-1">
                       Explanation
                     </label>
                     <input
+                      id={`edit-category-explanation-${cat.id}`}
                       type="text"
                       value={editForm.explanation}
                       onChange={(e) => setEditForm({ ...editForm, explanation: e.target.value })}

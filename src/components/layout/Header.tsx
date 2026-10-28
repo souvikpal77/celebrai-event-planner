@@ -63,6 +63,7 @@ export const Header: React.FC<HeaderProps> = ({
               <button
                 key={link.id}
                 onClick={() => onTabChange(link.id)}
+                aria-current={isActive ? 'page' : undefined}
                 className={`py-1 transition-colors whitespace-nowrap shrink-0 relative ${
                   isActive
                     ? 'text-[#1B4332] font-semibold'

@@ -163,6 +163,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               key={item.id}
               type="button"
               onClick={() => onTabChange(item.id)}
+              aria-current={isActive ? 'page' : undefined}
               className={`group relative w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-left transition-colors duration-200 outline-none focus-visible:ring-2 focus-visible:ring-[#1B4332] active:scale-[0.99] ${
                 isActive
                   ? 'text-white font-semibold'

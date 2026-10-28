@@ -256,10 +256,11 @@ export const VendorsView: React.FC<VendorsViewProps> = ({ event, onUpdateVendors
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="sm:col-span-2">
-              <label className="block text-xs font-semibold text-[#1F2421] mb-1">
+              <label htmlFor="new-vendor-category" className="block text-xs font-semibold text-[#1F2421] mb-1">
                 Vendor Category
               </label>
               <input
+                id="new-vendor-category"
                 type="text"
                 placeholder="e.g. Traditional Dhol Players or Floral Mandap Artist"
                 value={newVendorForm.category}
@@ -272,10 +273,11 @@ export const VendorsView: React.FC<VendorsViewProps> = ({ event, onUpdateVendors
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-[#1F2421] mb-1">
+              <label htmlFor="new-vendor-cost" className="block text-xs font-semibold text-[#1F2421] mb-1">
                 Estimated Cost ({currency})
               </label>
               <input
+                id="new-vendor-cost"
                 type="number"
                 min="0"
                 step="500"
@@ -289,10 +291,11 @@ export const VendorsView: React.FC<VendorsViewProps> = ({ event, onUpdateVendors
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-[#1F2421] mb-1">
+            <label htmlFor="new-vendor-desc" className="block text-xs font-semibold text-[#1F2421] mb-1">
               Description / Requirement Details
             </label>
             <input
+              id="new-vendor-desc"
               type="text"
               placeholder="e.g. 2 musicians for 2 hours during guest arrival"
               value={newVendorForm.description}
@@ -304,10 +307,11 @@ export const VendorsView: React.FC<VendorsViewProps> = ({ event, onUpdateVendors
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-[#1F2421] mb-1">
+            <label htmlFor="new-vendor-notes" className="block text-xs font-semibold text-[#1F2421] mb-1">
               Initial Notes / Contacts
             </label>
             <textarea
+              id="new-vendor-notes"
               rows={2}
               placeholder="e.g. Spoke with Rahul (+91 98765 43210), awaiting sample video clip"
               value={newVendorForm.notes}

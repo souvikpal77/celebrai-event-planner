@@ -251,8 +251,10 @@ export const TimelineView: React.FC<TimelineViewProps> = ({ event, onUpdateTasks
 
         {/* Priority Filter */}
         <div className="flex items-center gap-2 text-xs">
-          <span className="text-[#718096]">Priority:</span>
+          <label htmlFor="timeline-priority-filter" className="text-[#718096]">Priority:</label>
           <select
+            id="timeline-priority-filter"
+            aria-label="Filter tasks by priority level"
             value={priorityFilter}
             onChange={(e) => setPriorityFilter(e.target.value as any)}
             className="px-2.5 py-1.5 bg-white border border-[#D5CDC0] rounded-lg text-[#1F2421] outline-none"
@@ -283,10 +285,11 @@ export const TimelineView: React.FC<TimelineViewProps> = ({ event, onUpdateTasks
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-[#1F2421] mb-1">
+            <label htmlFor="new-task-title" className="block text-xs font-semibold text-[#1F2421] mb-1">
               Task Title
             </label>
             <input
+              id="new-task-title"
               type="text"
               placeholder="e.g. Confirm acoustic speakers & playlist with venue"
               value={newTaskForm.title}
@@ -297,10 +300,11 @@ export const TimelineView: React.FC<TimelineViewProps> = ({ event, onUpdateTasks
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-[#1F2421] mb-1">
+            <label htmlFor="new-task-desc" className="block text-xs font-semibold text-[#1F2421] mb-1">
               Description & Logistics
             </label>
             <textarea
+              id="new-task-desc"
               rows={2}
               placeholder="Specify requirements, contacts, or milestones..."
               value={newTaskForm.description}
@@ -311,8 +315,9 @@ export const TimelineView: React.FC<TimelineViewProps> = ({ event, onUpdateTasks
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-[#1F2421] mb-1">Due Date</label>
+              <label htmlFor="new-task-date" className="block text-xs font-semibold text-[#1F2421] mb-1">Due Date</label>
               <input
+                id="new-task-date"
                 type="date"
                 value={newTaskForm.dueDate}
                 onChange={(e) => setNewTaskForm({ ...newTaskForm, dueDate: e.target.value })}
@@ -321,8 +326,9 @@ export const TimelineView: React.FC<TimelineViewProps> = ({ event, onUpdateTasks
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-[#1F2421] mb-1">Priority</label>
+              <label htmlFor="new-task-priority" className="block text-xs font-semibold text-[#1F2421] mb-1">Priority</label>
               <select
+                id="new-task-priority"
                 value={newTaskForm.priority}
                 onChange={(e) =>
                   setNewTaskForm({ ...newTaskForm, priority: e.target.value as PriorityLevel })
@@ -335,8 +341,9 @@ export const TimelineView: React.FC<TimelineViewProps> = ({ event, onUpdateTasks
               </select>
             </div>
             <div>
-              <label className="block text-xs font-semibold text-[#1F2421] mb-1">Category</label>
+              <label htmlFor="new-task-category" className="block text-xs font-semibold text-[#1F2421] mb-1">Category</label>
               <input
+                id="new-task-category"
                 type="text"
                 placeholder="e.g. Venue, Catering"
                 value={newTaskForm.category}
@@ -381,10 +388,11 @@ export const TimelineView: React.FC<TimelineViewProps> = ({ event, onUpdateTasks
               return (
                 <div key={t.id} className="p-4 bg-[#F9F7F2] space-y-3">
                   <div>
-                    <label className="block text-xs font-semibold text-[#1F2421] mb-1">
+                    <label htmlFor={`edit-task-title-${t.id}`} className="block text-xs font-semibold text-[#1F2421] mb-1">
                       Task Title
                     </label>
                     <input
+                      id={`edit-task-title-${t.id}`}
                       type="text"
                       value={editForm.title}
                       onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
@@ -392,10 +400,11 @@ export const TimelineView: React.FC<TimelineViewProps> = ({ event, onUpdateTasks
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-[#1F2421] mb-1">
+                    <label htmlFor={`edit-task-desc-${t.id}`} className="block text-xs font-semibold text-[#1F2421] mb-1">
                       Description
                     </label>
                     <input
+                      id={`edit-task-desc-${t.id}`}
                       type="text"
                       value={editForm.description}
                       onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
@@ -404,10 +413,11 @@ export const TimelineView: React.FC<TimelineViewProps> = ({ event, onUpdateTasks
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-xs font-semibold text-[#1F2421] mb-1">
+                      <label htmlFor={`edit-task-date-${t.id}`} className="block text-xs font-semibold text-[#1F2421] mb-1">
                         Due Date
                       </label>
                       <input
+                        id={`edit-task-date-${t.id}`}
                         type="date"
                         value={editForm.dueDate}
                         onChange={(e) => setEditForm({ ...editForm, dueDate: e.target.value })}
@@ -415,10 +425,11 @@ export const TimelineView: React.FC<TimelineViewProps> = ({ event, onUpdateTasks
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-[#1F2421] mb-1">
+                      <label htmlFor={`edit-task-priority-${t.id}`} className="block text-xs font-semibold text-[#1F2421] mb-1">
                         Priority
                       </label>
                       <select
+                        id={`edit-task-priority-${t.id}`}
                         value={editForm.priority}
                         onChange={(e) =>
                           setEditForm({ ...editForm, priority: e.target.value as PriorityLevel })
