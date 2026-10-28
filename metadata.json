@@ -1,0 +1,6 @@
+{
+  "name": "CelebrAI",
+  "description": "Every Celebration, Thoughtfully Planned. An intelligent celebration and event planning assistant powered by Gemini for weddings, birthdays, and community gatherings with budgets, timelines, vendor checklists, and personalized ideas.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
