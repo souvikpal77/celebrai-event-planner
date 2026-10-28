@@ -14,13 +14,14 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
 const isProduction = process.env.NODE_ENV === 'production';
+const isTest = process.env.NODE_ENV === 'test' || Boolean(process.env.VITEST);
 
 // Strict body parsing limits to mitigate DoS
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
-// Initialize Gemini Client
-const apiKey = process.env.GEMINI_API_KEY;
+// Initialize Gemini Client (disabled in test mode to guarantee zero external AI calls and determinism)
+const apiKey = isTest ? undefined : process.env.GEMINI_API_KEY;
 let aiClient: GoogleGenAI | null = null;
 
 if (apiKey && apiKey !== 'MY_GEMINI_API_KEY') {
@@ -708,7 +709,12 @@ export function injectQuery(url) { return url; }
   });
 }
 
-startServer().catch((err) => {
-  console.error('Server startup failed:', err);
-  process.exit(1);
-});
+export { app, generateDeterministicPlan };
+export default app;
+
+if (!isTest) {
+  startServer().catch((err) => {
+    console.error('Server startup failed:', err);
+    process.exit(1);
+  });
+}
