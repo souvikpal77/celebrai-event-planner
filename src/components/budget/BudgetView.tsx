@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   Wallet,
-  PieChart,
+  PieChart as PieChartIcon,
   Plus,
   Pencil,
   Trash2,
@@ -10,6 +10,13 @@ import {
   Info,
   DollarSign,
 } from 'lucide-react';
+import {
+  ResponsiveContainer,
+  PieChart as RechartsPieChart,
+  Pie,
+  Cell,
+  Tooltip as RechartsTooltip,
+} from 'recharts';
 import { EventPlan, BudgetCategory } from '../../types/event';
 import {
   formatCurrency,
@@ -18,6 +25,18 @@ import {
   calculatePercentage,
   isOverBudget,
 } from '../../utils/currency';
+
+const DONUT_COLORS = [
+  '#1B4332', // Deep forest green
+  '#2D6A4F', // Emerald green
+  '#B7791F', // Warm brass / amber
+  '#40916C', // Mid green
+  '#D97706', // Warm ochre
+  '#52796F', // Sage
+  '#2B6CB0', // Sapphire blue
+  '#9B2C2C', // Terracotta wine
+  '#718096', // Slate gray
+];
 
 interface BudgetViewProps {
   event: EventPlan;
@@ -57,6 +76,29 @@ export const BudgetView: React.FC<BudgetViewProps> = ({
   const remaining = calculateRemaining(totalBudget, allocated);
   const percentageAllocated = calculatePercentage(allocated, totalBudget);
   const overBudget = isOverBudget(totalBudget, allocated);
+
+  // Recharts Donut data mapping
+  const chartData = categories.map((cat, idx) => ({
+    name: cat.category,
+    value: Math.max(0, cat.estimatedAmount),
+    percentage: cat.percentage,
+    color: DONUT_COLORS[idx % DONUT_COLORS.length],
+  }));
+
+  const renderCustomTooltip = ({ active, payload }: any) => {
+    if (active && payload && payload.length) {
+      const data = payload[0].payload;
+      return (
+        <div className="bg-[#1F2421] text-white px-3 py-2 rounded-lg shadow-xl text-xs border border-[#333] space-y-0.5 pointer-events-none">
+          <div className="font-semibold text-white">{data.name}</div>
+          <div className="text-[#D5CDC0] tabular-nums">
+            {formatCurrency(data.value, currency)} · {data.percentage}% of budget
+          </div>
+        </div>
+      );
+    }
+    return null;
+  };
 
   const startEditing = (cat: BudgetCategory) => {
     setEditingCategoryId(cat.id);
@@ -270,6 +312,99 @@ export const BudgetView: React.FC<BudgetViewProps> = ({
           </span>
         </div>
       </div>
+
+      {/* Category Distribution Donut Chart Card */}
+      {categories.length > 0 && (
+        <div className="bg-white p-6 rounded-2xl border border-[#E8E2D9] shadow-sm space-y-5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#F0EBE3] pb-4">
+            <div>
+              <h2 className="text-base font-bold text-[#1F2421] flex items-center gap-2">
+                <PieChartIcon className="w-4 h-4 text-[#1B4332]" />
+                Budget Category Distribution
+              </h2>
+              <p className="text-xs text-[#718096]">
+                Interactive visual distribution of estimated amounts across budget categories.
+              </p>
+            </div>
+            <div className="text-xs text-[#718096]">
+              Total Allocated:{' '}
+              <span className="font-bold text-[#1F2421] tabular-nums">
+                {formatCurrency(allocated, currency)}
+              </span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+            {/* Donut Chart with Centered Metric */}
+            <div className="lg:col-span-5 flex flex-col items-center justify-center relative min-h-[260px]">
+              <div className="w-full h-64 min-h-[256px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <RechartsPieChart>
+                    <RechartsTooltip content={renderCustomTooltip} />
+                    <Pie
+                      data={chartData}
+                      dataKey="value"
+                      nameKey="name"
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={68}
+                      outerRadius={98}
+                      paddingAngle={3}
+                      stroke="#FFFFFF"
+                      strokeWidth={2}
+                    >
+                      {chartData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                  </RechartsPieChart>
+                </ResponsiveContainer>
+              </div>
+
+              {/* Center Donut Label */}
+              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center">
+                <span className="text-[10px] font-semibold text-[#718096] uppercase tracking-wider">
+                  Allocated
+                </span>
+                <span className="text-lg font-extrabold text-[#1F2421] tabular-nums">
+                  {formatCurrency(allocated, currency)}
+                </span>
+                <span className="text-[11px] text-[#718096] tabular-nums">
+                  {percentageAllocated}% of budget
+                </span>
+              </div>
+            </div>
+
+            {/* Distribution Legend Grid */}
+            <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              {chartData.map((item) => (
+                <div
+                  key={item.name}
+                  className="flex items-center justify-between p-2.5 rounded-xl border border-[#F0EBE3] hover:border-[#D5CDC0] hover:bg-[#FDFBF7] transition-colors"
+                >
+                  <div className="flex items-center gap-2.5 min-w-0 pr-2">
+                    <span
+                      className="w-3 h-3 rounded-full shrink-0 shadow-xs"
+                      style={{ backgroundColor: item.color }}
+                    />
+                    <span className="text-xs font-semibold text-[#1F2421] truncate">
+                      {item.name}
+                    </span>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <span className="text-xs font-bold text-[#1F2421] tabular-nums block">
+                      {formatCurrency(item.value, currency)}
+                    </span>
+                    <span className="text-[11px] text-[#718096] tabular-nums">
+                      {item.percentage}%
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Add New Category Form (Collapsible) */}
       {isAddingNew && (

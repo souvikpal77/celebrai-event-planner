@@ -35,10 +35,15 @@ jobs:
             npm install --legacy-peer-deps
           fi
 
-      # Step 4: Run existing type-checking and lint script defined in package.json
+      # Step 4: Run automated tests (deterministic, offline, zero Gemini calls)
+      - name: Run automated tests
+        run: npm test
+
+      # Step 5: Run existing type-checking and lint script defined in package.json
       - name: Run lint (TypeScript check)
         run: npm run lint
 
-      # Step 5: Run existing production build script defined in package.json
+      # Step 6: Run existing production build script defined in package.json
       - name: Build production bundle
         run: npm run build
+
