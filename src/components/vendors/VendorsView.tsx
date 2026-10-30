@@ -370,8 +370,10 @@ export const VendorsView: React.FC<VendorsViewProps> = ({ event, onUpdateVendors
 
                   {/* Status Dropdown */}
                   <div className="flex items-center gap-3 shrink-0 self-end sm:self-center">
-                    <label className="text-xs text-[#718096] hidden sm:inline">Status:</label>
+                    <label htmlFor={`vendor-status-${v.id}`} className="text-xs text-[#718096] hidden sm:inline">Status:</label>
                     <select
+                      id={`vendor-status-${v.id}`}
+                      aria-label={`Status for ${v.category}`}
                       value={v.status}
                       onChange={(e) => changeVendorStatus(v.id, e.target.value as VendorStatus)}
                       className={`px-3 py-1.5 text-xs font-semibold rounded-lg border outline-none cursor-pointer transition-colors ${
@@ -404,7 +406,12 @@ export const VendorsView: React.FC<VendorsViewProps> = ({ event, onUpdateVendors
                 <div className="pt-3 border-t border-[#F0EBE3]">
                   {isEditingNotes ? (
                     <div className="space-y-2">
+                      <label htmlFor={`vendor-notes-${v.id}`} className="sr-only">
+                        Notes for {v.category}
+                      </label>
                       <textarea
+                        id={`vendor-notes-${v.id}`}
+                        aria-label={`Notes for ${v.category}`}
                         rows={2}
                         value={noteText}
                         onChange={(e) => setNoteText(e.target.value)}

@@ -78,7 +78,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     <div className="space-y-8 max-w-7xl mx-auto pb-12">
       {/* Sample Preview Notice Banner (if active event is sample/demo) */}
       {event.isDemo && !isDemoBannerDismissed && (
-        <div className="bg-[#FFF9EB] border border-[#F3DEB0] rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-sm text-[#744210]">
+        <div
+          className="bg-[#FFF9EB] border border-[#F3DEB0] rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-sm text-[#744210]"
+          role="status"
+          aria-live="polite"
+        >
           <div className="flex items-center gap-2.5">
             <Info className="w-5 h-5 text-[#B7791F] shrink-0" />
             <div>
@@ -151,7 +155,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <div className="lg:col-span-5 relative min-h-[180px] lg:min-h-full">
             <img
               src="/src/assets/images/celebration_hero_ambiance_1793158855836.jpg"
-              alt="Celebration Ambiance"
+              alt="Warm ambient celebration lighting and decorated banquet atmosphere"
               referrerPolicy="no-referrer"
               className="w-full h-full object-cover"
             />
@@ -243,6 +247,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             className="group bg-white p-5 rounded-xl border border-[#E8E2D9] hover:border-[#2D6A4F] transition-all cursor-pointer shadow-sm hover:shadow"
             role="button"
             tabIndex={0}
+            aria-label="Navigate to Budget Management"
             onKeyDown={(e) => e.key === 'Enter' && onNavigateTab('budget')}
           >
             <div className="w-10 h-10 rounded-lg bg-[#E8EFE9] text-[#1B4332] flex items-center justify-center mb-3 group-hover:bg-[#1B4332] group-hover:text-white transition-colors">
@@ -266,6 +271,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             className="group bg-white p-5 rounded-xl border border-[#E8E2D9] hover:border-[#2D6A4F] transition-all cursor-pointer shadow-sm hover:shadow"
             role="button"
             tabIndex={0}
+            aria-label="Navigate to Planning Timeline"
             onKeyDown={(e) => e.key === 'Enter' && onNavigateTab('timeline')}
           >
             <div className="w-10 h-10 rounded-lg bg-[#E8EFE9] text-[#1B4332] flex items-center justify-center mb-3 group-hover:bg-[#1B4332] group-hover:text-white transition-colors">
@@ -289,6 +295,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             className="group bg-white p-5 rounded-xl border border-[#E8E2D9] hover:border-[#2D6A4F] transition-all cursor-pointer shadow-sm hover:shadow"
             role="button"
             tabIndex={0}
+            aria-label="Navigate to Vendor Checklist"
             onKeyDown={(e) => e.key === 'Enter' && onNavigateTab('vendors')}
           >
             <div className="w-10 h-10 rounded-lg bg-[#E8EFE9] text-[#1B4332] flex items-center justify-center mb-3 group-hover:bg-[#1B4332] group-hover:text-white transition-colors">
@@ -312,6 +319,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             className="group bg-white p-5 rounded-xl border border-[#E8E2D9] hover:border-[#2D6A4F] transition-all cursor-pointer shadow-sm hover:shadow"
             role="button"
             tabIndex={0}
+            aria-label="Navigate to Personalized Ideas"
             onKeyDown={(e) => e.key === 'Enter' && onNavigateTab('ideas')}
           >
             <div className="w-10 h-10 rounded-lg bg-[#E8EFE9] text-[#1B4332] flex items-center justify-center mb-3 group-hover:bg-[#1B4332] group-hover:text-white transition-colors">

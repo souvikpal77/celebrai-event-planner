@@ -4,7 +4,14 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import { GoogleGenAI, Type } from '@google/genai';
-import { PlanGenerationRequest, RegenerateIdeasRequest, GeneratedPlanData } from './src/types/event';
+import {
+  PlanGenerationRequest,
+  RegenerateIdeasRequest,
+  GeneratedPlanData,
+  IdeaCategory,
+  PriorityLevel,
+  CelebrationIdea,
+} from './src/types/event';
 
 dotenv.config();
 
@@ -16,9 +23,29 @@ const PORT = Number(process.env.PORT) || 3000;
 const isProduction = process.env.NODE_ENV === 'production';
 const isTest = process.env.NODE_ENV === 'test' || Boolean(process.env.VITEST);
 
+// Disable x-powered-by banner
+app.disable('x-powered-by');
+
+// Security headers (frame-safe for AI Studio preview iframe, nosniff, strict referrer)
+app.use((_req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('X-XSS-Protection', '0');
+  next();
+});
+
 // Strict body parsing limits to mitigate DoS
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
+
+// Gracefully handle malformed JSON syntax errors with clean 400 Bad Request
+app.use((err: unknown, _req: Request, res: Response, next: express.NextFunction) => {
+  if (err instanceof SyntaxError && 'status' in err && (err as { status: unknown }).status === 400) {
+    res.status(400).json({ error: 'Malformed JSON payload' });
+    return;
+  }
+  next(err);
+});
 
 // Initialize Gemini Client (disabled in test mode to guarantee zero external AI calls and determinism)
 const apiKey = isTest ? undefined : process.env.GEMINI_API_KEY;
@@ -429,8 +456,23 @@ Label all financial costs as estimated costs. Return structured JSON conforming 
 
     const parsed = JSON.parse(text);
 
+    const validCategories = new Set<IdeaCategory>([
+      'theme',
+      'decor',
+      'food',
+      'entertainment',
+      'activities',
+      'guest_experience',
+      'invitations',
+      'photography',
+    ]);
+    const parseCategory = (val: unknown): IdeaCategory => {
+      const normalized = String(val || '').toLowerCase() as IdeaCategory;
+      return validCategories.has(normalized) ? normalized : 'theme';
+    };
+
     // Validate and sanitize parsed AI response
-    const sanitizedCategories = (parsed.budgetCategories || []).map((cat: any, idx: number) => ({
+    const sanitizedCategories = (parsed.budgetCategories || []).map((cat: Record<string, unknown>, idx: number) => ({
       id: `b-${idx + 1}-${Date.now()}`,
       category: String(cat.category || 'Expense Category').trim(),
       estimatedAmount: Math.max(0, Number(cat.estimatedAmount) || 0),
@@ -438,19 +480,19 @@ Label all financial costs as estimated costs. Return structured JSON conforming 
       explanation: String(cat.explanation || '').trim(),
     }));
 
-    const sanitizedTasks = (parsed.tasks || []).map((t: any, idx: number) => ({
+    const sanitizedTasks = (parsed.tasks || []).map((t: Record<string, unknown>, idx: number) => ({
       id: `t-${idx + 1}-${Date.now()}`,
       title: String(t.title || 'Task').trim(),
       description: String(t.description || '').trim(),
       dueDate: String(t.dueDate || eventDate || new Date().toISOString().split('T')[0]),
       priority: (['high', 'medium', 'low'].includes(String(t.priority).toLowerCase())
         ? String(t.priority).toLowerCase()
-        : 'medium') as 'high' | 'medium' | 'low',
+        : 'medium') as PriorityLevel,
       status: 'pending' as const,
       category: String(t.category || 'General').trim(),
     }));
 
-    const sanitizedVendors = (parsed.vendors || []).map((v: any, idx: number) => ({
+    const sanitizedVendors = (parsed.vendors || []).map((v: Record<string, unknown>, idx: number) => ({
       id: `v-${idx + 1}-${Date.now()}`,
       category: String(v.category || 'Vendor').trim(),
       description: String(v.description || '').trim(),
@@ -459,19 +501,15 @@ Label all financial costs as estimated costs. Return structured JSON conforming 
       notes: String(v.notes || '').trim(),
     }));
 
-    const sanitizedIdeas = (parsed.ideas || []).map((i: any, idx: number) => ({
+    const sanitizedIdeas: CelebrationIdea[] = (parsed.ideas || []).map((i: Record<string, unknown>, idx: number) => ({
       id: `i-${idx + 1}-${Date.now()}`,
-      category: (['theme', 'decor', 'food', 'entertainment', 'activities', 'guest_experience', 'invitations', 'photography'].includes(
-        String(i.category).toLowerCase()
-      )
-        ? String(i.category).toLowerCase()
-        : 'theme') as any,
+      category: parseCategory(i.category),
       title: String(i.title || 'Creative Idea').trim(),
       description: String(i.description || '').trim(),
       reasonWhyItFits: String(i.reasonWhyItFits || '').trim(),
     }));
 
-    const sanitizedSchedule = (parsed.eventDaySchedule || []).map((s: any, idx: number) => ({
+    const sanitizedSchedule = (parsed.eventDaySchedule || []).map((s: Record<string, unknown>, idx: number) => ({
       id: `s-${idx + 1}-${Date.now()}`,
       time: String(s.time || '12:00 PM').trim(),
       activity: String(s.activity || 'Activity').trim(),
@@ -598,17 +636,29 @@ Provide innovative ideas across theme, decor, food, entertainment, activities, g
     const parsed = text ? JSON.parse(text) : { ideas: [] };
     const rawIdeas = Array.isArray(parsed.ideas) ? parsed.ideas : [];
 
-    const sanitizedIdeas = rawIdeas.map((item: any, idx: number) => ({
-      id: `i-regen-${idx + 1}-${Date.now()}`,
-      category: (['theme', 'decor', 'food', 'entertainment', 'activities', 'guest_experience', 'invitations', 'photography'].includes(
-        String(item.category).toLowerCase()
-      )
-        ? String(item.category).toLowerCase()
-        : 'theme') as any,
-      title: String(item.title || 'Creative Idea').trim(),
-      description: String(item.description || '').trim(),
-      reasonWhyItFits: String(item.reasonWhyItFits || '').trim(),
-    }));
+    const validRegenCategories = new Set<IdeaCategory>([
+      'theme',
+      'decor',
+      'food',
+      'entertainment',
+      'activities',
+      'guest_experience',
+      'invitations',
+      'photography',
+    ]);
+
+    const sanitizedIdeas: CelebrationIdea[] = rawIdeas.map((item: Record<string, unknown>, idx: number) => {
+      const normalizedCat = String(item.category || '').toLowerCase() as IdeaCategory;
+      const category: IdeaCategory = validRegenCategories.has(normalizedCat) ? normalizedCat : 'theme';
+
+      return {
+        id: `i-regen-${idx + 1}-${Date.now()}`,
+        category,
+        title: String(item.title || 'Creative Idea').trim(),
+        description: String(item.description || '').trim(),
+        reasonWhyItFits: String(item.reasonWhyItFits || '').trim(),
+      };
+    });
 
     res.json({ ideas: sanitizedIdeas, source: 'gemini' });
   } catch (error) {

@@ -36,9 +36,9 @@ export async function generateCelebrationPlan(request: PlanGenerationRequest): P
 
     const data = await response.json();
     return data;
-  } catch (error: any) {
+  } catch (error: unknown) {
     clearTimeout(timeoutId);
-    if (error.name === 'AbortError') {
+    if (error instanceof Error && error.name === 'AbortError') {
       throw new Error('Plan generation took longer than expected. Please try again.');
     }
     throw error;
@@ -69,9 +69,9 @@ export async function regeneratePersonalizedIdeas(
 
     const data = await response.json();
     return data;
-  } catch (error: any) {
+  } catch (error: unknown) {
     clearTimeout(timeoutId);
-    if (error.name === 'AbortError') {
+    if (error instanceof Error && error.name === 'AbortError') {
       throw new Error('Idea generation timed out. Please try again.');
     }
     throw error;

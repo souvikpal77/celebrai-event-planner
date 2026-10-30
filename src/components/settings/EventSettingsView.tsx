@@ -155,15 +155,22 @@ ${(plan?.ideas || []).map((i) => `* ${i.title} (${i.category}): ${i.description}
         <div className="flex items-center justify-between border-b border-[#E8E2D9] pb-3">
           <h2 className="text-base font-bold text-[#1F2421]">Edit Event Parameters</h2>
           {savedSuccess && (
-            <span className="text-xs font-semibold text-[#2D6A4F] flex items-center gap-1">
+            <span
+              role="status"
+              aria-live="polite"
+              className="text-xs font-semibold text-[#2D6A4F] flex items-center gap-1"
+            >
               <Check className="w-3.5 h-3.5" /> Saved successfully!
             </span>
           )}
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-[#1F2421] mb-1">Event Name</label>
+          <label htmlFor="settings-event-name" className="block text-xs font-semibold text-[#1F2421] mb-1">
+            Event Name
+          </label>
           <input
+            id="settings-event-name"
             type="text"
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -174,8 +181,11 @@ ${(plan?.ideas || []).map((i) => `* ${i.title} (${i.category}): ${i.description}
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
-            <label className="block text-xs font-semibold text-[#1F2421] mb-1">Date</label>
+            <label htmlFor="settings-event-date" className="block text-xs font-semibold text-[#1F2421] mb-1">
+              Date
+            </label>
             <input
+              id="settings-event-date"
               type="date"
               value={formData.eventDate}
               onChange={(e) => setFormData({ ...formData, eventDate: e.target.value })}
@@ -185,8 +195,11 @@ ${(plan?.ideas || []).map((i) => `* ${i.title} (${i.category}): ${i.description}
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-[#1F2421] mb-1">Guest Count</label>
+            <label htmlFor="settings-guest-count" className="block text-xs font-semibold text-[#1F2421] mb-1">
+              Guest Count
+            </label>
             <input
+              id="settings-guest-count"
               type="number"
               min="1"
               value={formData.guestCount}
@@ -197,10 +210,11 @@ ${(plan?.ideas || []).map((i) => `* ${i.title} (${i.category}): ${i.description}
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-[#1F2421] mb-1">
+            <label htmlFor="settings-total-budget" className="block text-xs font-semibold text-[#1F2421] mb-1">
               Total Budget ({event.currency})
             </label>
             <input
+              id="settings-total-budget"
               type="number"
               min="100"
               step="500"
@@ -213,8 +227,11 @@ ${(plan?.ideas || []).map((i) => `* ${i.title} (${i.category}): ${i.description}
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-[#1F2421] mb-1">Location</label>
+          <label htmlFor="settings-location" className="block text-xs font-semibold text-[#1F2421] mb-1">
+            Location
+          </label>
           <input
+            id="settings-location"
             type="text"
             value={formData.location}
             onChange={(e) => setFormData({ ...formData, location: e.target.value })}
@@ -225,8 +242,11 @@ ${(plan?.ideas || []).map((i) => `* ${i.title} (${i.category}): ${i.description}
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs font-semibold text-[#1F2421] mb-1">Theme & Style</label>
+            <label htmlFor="settings-theme" className="block text-xs font-semibold text-[#1F2421] mb-1">
+              Theme & Style
+            </label>
             <input
+              id="settings-theme"
               type="text"
               value={formData.themePreferences}
               onChange={(e) => setFormData({ ...formData, themePreferences: e.target.value })}
@@ -235,8 +255,11 @@ ${(plan?.ideas || []).map((i) => `* ${i.title} (${i.category}): ${i.description}
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-[#1F2421] mb-1">Dietary Requirements</label>
+            <label htmlFor="settings-dietary" className="block text-xs font-semibold text-[#1F2421] mb-1">
+              Dietary Requirements
+            </label>
             <input
+              id="settings-dietary"
               type="text"
               value={formData.dietaryRequirements}
               onChange={(e) => setFormData({ ...formData, dietaryRequirements: e.target.value })}

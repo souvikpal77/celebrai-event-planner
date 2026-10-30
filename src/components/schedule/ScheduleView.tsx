@@ -122,8 +122,9 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({ event, onUpdateSched
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-[#1F2421] mb-1">Time</label>
+              <label htmlFor="new-slot-time" className="block text-xs font-semibold text-[#1F2421] mb-1">Time</label>
               <input
+                id="new-slot-time"
                 type="text"
                 placeholder="e.g. 05:30 PM"
                 value={newSlot.time}
@@ -133,8 +134,9 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({ event, onUpdateSched
               />
             </div>
             <div className="sm:col-span-2">
-              <label className="block text-xs font-semibold text-[#1F2421] mb-1">Activity</label>
+              <label htmlFor="new-slot-activity" className="block text-xs font-semibold text-[#1F2421] mb-1">Activity</label>
               <input
+                id="new-slot-activity"
                 type="text"
                 placeholder="e.g. Guest Welcome & Appetizers"
                 value={newSlot.activity}
@@ -146,8 +148,9 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({ event, onUpdateSched
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-[#1F2421] mb-1">Details & Logistics</label>
+            <label htmlFor="new-slot-desc" className="block text-xs font-semibold text-[#1F2421] mb-1">Details & Logistics</label>
             <input
+              id="new-slot-desc"
               type="text"
               placeholder="e.g. Acoustic guitar background, mocktail punch served at entrance"
               value={newSlot.description}
@@ -190,8 +193,9 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({ event, onUpdateSched
                 <div key={item.id} className="p-4 bg-[#F9F7F2] space-y-3">
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div>
-                      <label className="block text-xs font-semibold text-[#1F2421] mb-1">Time</label>
+                      <label htmlFor={`edit-slot-time-${item.id}`} className="block text-xs font-semibold text-[#1F2421] mb-1">Time</label>
                       <input
+                        id={`edit-slot-time-${item.id}`}
                         type="text"
                         value={editSlot.time}
                         onChange={(e) => setEditSlot({ ...editSlot, time: e.target.value })}
@@ -199,8 +203,9 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({ event, onUpdateSched
                       />
                     </div>
                     <div className="sm:col-span-2">
-                      <label className="block text-xs font-semibold text-[#1F2421] mb-1">Activity</label>
+                      <label htmlFor={`edit-slot-act-${item.id}`} className="block text-xs font-semibold text-[#1F2421] mb-1">Activity</label>
                       <input
+                        id={`edit-slot-act-${item.id}`}
                         type="text"
                         value={editSlot.activity}
                         onChange={(e) => setEditSlot({ ...editSlot, activity: e.target.value })}
@@ -209,8 +214,9 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({ event, onUpdateSched
                     </div>
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-[#1F2421] mb-1">Description</label>
+                    <label htmlFor={`edit-slot-desc-${item.id}`} className="block text-xs font-semibold text-[#1F2421] mb-1">Description</label>
                     <input
+                      id={`edit-slot-desc-${item.id}`}
                       type="text"
                       value={editSlot.description}
                       onChange={(e) => setEditSlot({ ...editSlot, description: e.target.value })}
